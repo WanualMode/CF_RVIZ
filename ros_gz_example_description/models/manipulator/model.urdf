@@ -41,7 +41,25 @@
   <joint name="drone_to_ee" type="fixed">
     <parent link="link_drone"/>
     <child link="link_ee"/>
-    <origin xyz="0 0 0" rpy="0 0 0"/> <!-- 135도 회전 -->
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+
+  <!-- 구체 추가 -->
+  <link name="sphere_link">
+    <visual>
+      <origin xyz="0.7 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://ros_gz_example_description/models/manipulator/meshes/sphere.dae" scale="0.02 0.02 0.02"/>
+      </geometry>
+    </visual>
+  </link>
+
+  <!-- 구체를 월드에 고정-->
+  <joint name="world_to_sphere" type="fixed">
+    <parent link="world"/>
+    <child link="sphere_link"/>
+    <origin xyz="0.7 0 0" rpy="0 0 0"/>
   </joint>
 
 </robot>
