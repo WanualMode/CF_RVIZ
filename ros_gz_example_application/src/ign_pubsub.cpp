@@ -111,11 +111,11 @@ class ign_pubsub : public rclcpp::Node
       5ms, std::bind(&ign_pubsub::timer_callback, this));
 
 
-    body_xyz_P.diagonal() << 30, 30, 100;
+    body_xyz_P.diagonal() << 20, 20, 500;
     body_xyz_I.diagonal() << 0., 0., 0.;
-    body_xyz_D.diagonal() << 3, 3, 9;
-    body_rpy_P.diagonal() << 10, 10, 4;
-    body_rpy_D.diagonal() << 1, 1, 0.1;
+    body_xyz_D.diagonal() << 4, 4, 50;
+    body_rpy_P.diagonal() << 150, 150, 30;
+    body_rpy_D.diagonal() << 15, 15, 4;
       wrench_msg.entity.name = "link_drone"; // 링크 이름
       wrench_msg.entity.type = ros_gz_interfaces::msg::Entity::LINK; // 엔티티 유형: LINK
 
@@ -178,13 +178,17 @@ void PID_controller()
 }
 
 
-
-
 void set_traj()
 {
   const Eigen::Vector3d rod_offset(0.4, 0.0, 0.2);
   
-  
+  //TODO: IK Solve
+  //Known: global_EE_xyz_cmd[0, 1, 2]
+  //       body_EE_rpy_cmd[0, 1, 2]
+
+  //Need:  global_xyz_cmd[0, 1, 2]
+  //       body_rpy_cmd[0, 1, 2]
+
       // **Step 2: RPY에서 회전 행렬 생성 (R = Rz * Ry * Rx)**
     double roll = body_EE_rpy_cmd[0];
     double pitch = body_EE_rpy_cmd[1];
@@ -208,13 +212,6 @@ void set_traj()
     body_rpy_cmd[2] = body_rpy_cmd.z();
 
 
-    time_cnt += delta_time;
-
-      if (time_cnt > 5 && time_cnt < 10)
-    {   joint_angle_cmd[0] = 0;
-        joint_angle_cmd[1] = M_PI / 11 * (time_cnt - 5) / 5;
-        joint_angle_cmd[2] = M_PI / 4.5 * (time_cnt - 5) / 5;
-    }
 }
 
 
@@ -222,12 +219,6 @@ void set_traj()
 
 void data_publish()
 {	// publish!!
-
-  RCLCPP_WARN(this->get_logger(), "%lf, %lf, %lf", global_force_cmd[0], global_force_cmd[1], global_force_cmd[2]);
-
-
-
-
   joint_1_cmd_msg.data = joint_angle_cmd[0];
   joint_2_cmd_msg.data = joint_angle_cmd[1];
   joint_3_cmd_msg.data = joint_angle_cmd[2];	      

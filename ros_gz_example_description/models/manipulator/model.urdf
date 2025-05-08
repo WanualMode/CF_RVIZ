@@ -18,7 +18,7 @@
   <visual>
     <origin xyz="0 0 0" rpy="0 0 0"/> <!-- Center of mass adjustment -->  
     <geometry>
-        <mesh filename="package://ros_gz_example_description/models/manipulator/meshes/crazyflie.dae" scale="0.005 0.005 0.005"/>
+        <mesh filename="package://ros_gz_example_description/models/manipulator/meshes/crazyflie.dae" scale="0.001 0.001 0.001"/>
     </geometry>
   </visual>
 </link>
@@ -32,7 +32,7 @@
     </inertial>
     <visual>
       <geometry>
-        <mesh filename="package://ros_gz_example_description/models/manipulator/meshes/EE.dae" scale="0.005 0.005 0.005"/>
+        <mesh filename="package://ros_gz_example_description/models/manipulator/meshes/EE.dae" scale="0.001 0.001 0.001"/>
       </geometry>
     </visual>
   </link>
@@ -48,9 +48,9 @@
   <!-- 구체 추가 -->
   <link name="sphere_link">
     <visual>
-      <origin xyz="0.7 0 0" rpy="0 0 0"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://ros_gz_example_description/models/manipulator/meshes/sphere.dae" scale="0.02 0.02 0.02"/>
+        <mesh filename="package://ros_gz_example_description/models/manipulator/meshes/sphere.dae" scale="0.006 0.006 0.006"/>
       </geometry>
     </visual>
   </link>
@@ -59,7 +59,24 @@
   <joint name="world_to_sphere" type="fixed">
     <parent link="world"/>
     <child link="sphere_link"/>
-    <origin xyz="0.7 0 0" rpy="0 0 0"/>
+    <origin xyz="1.5 -1.2 0" rpy="0 0 0"/>
+  </joint>
+    
+      <!-- 곡면 추가 -->
+      <link name="curvature_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://ros_gz_example_description/models/manipulator/meshes/curvature.dae" scale="0.005 0.005 0.005"/>
+      </geometry>
+    </visual>
+  </link>
+
+  <!-- 곡면을 월드에 고정-->
+  <joint name="world_to_curvature" type="fixed">
+    <parent link="world"/>
+    <child link="curvature_link"/>
+    <origin xyz="1.5 0.8 0" rpy="0 0 0"/>
   </joint>
 
 </robot>

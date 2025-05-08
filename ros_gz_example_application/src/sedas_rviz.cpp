@@ -20,6 +20,8 @@
 #include "sedas_rot.hpp"
 #include <geometry_msgs/msg/wrench_stamped.hpp>
 #include <iostream>
+#include <std_msgs/msg/float64_multi_array.hpp>  // 다중 float64 배열 퍼블리시
+#include <tf2/LinearMath/Quaternion.h>
 #include <random>
 
 using namespace std::chrono_literals;
@@ -174,7 +176,7 @@ void EE_cmd_publisher()
     // DH 파라미터 기반의 변환 행렬 정의
     T_01 << std::cos(joint_angle_meas[0]), 0, std::sin(joint_angle_meas[0]), 0,
             std::sin(joint_angle_meas[0]), 0, -std::cos(joint_angle_meas[0]), 0,
-            0, 1, 0, l1 + 0.15,
+            0, 1, 0, l1,
             0, 0, 0, 1;
 
     T_12 << std::cos(joint_angle_meas[1]), -std::sin(joint_angle_meas[1]), 0, l2 * std::cos(joint_angle_meas[1]),
@@ -276,6 +278,25 @@ void EE_cmd_publisher()
 
     void Robot_State_Publisher()
     {
+        geometry_msgs::msg::TransformStamped transform_EE;
+        transform_EE.header.stamp = this->get_clock()->now();
+        transform_EE.header.frame_id = "world"; // Parent frame
+        transform_EE.child_frame_id = "tf/EE_FK";  // Child frame
+
+        transform_EE.transform.translation.x = FK_EE_Pos[0];
+        transform_EE.transform.translation.y = FK_EE_Pos[1];
+        transform_EE.transform.translation.z = FK_EE_Pos[2];
+
+        // Convert roll, pitch, yaw to quaternion
+        tf2::Quaternion q_EE;
+        q_EE.setRPY(FK_EE_Pos[3], FK_EE_Pos[4], FK_EE_Pos[5]);
+        transform_EE.transform.rotation.x = q_EE.x();
+        transform_EE.transform.rotation.y = q_EE.y();
+        transform_EE.transform.rotation.z = q_EE.z();
+        transform_EE.transform.rotation.w = q_EE.w();
+
+        // Broadcast the transform
+        tf_broadcaster_->sendTransform(transform_EE);
 
 
   //TODO 2: Drone TF Publish
@@ -300,88 +321,87 @@ void EE_cmd_publisher()
         tf_broadcaster_->sendTransform(transform_drone);
 
 
+
     }
 
 
-void End_Effector_Pos_Vel_Publisher()
-{
-  // Rviz에서 시각화할 Marker 메시지 생성
-  auto marker = visualization_msgs::msg::Marker();
-  marker.header.frame_id = "world";
-  marker.header.stamp = this->get_clock()->now();
-  marker.ns = "ee_velocity";
-  marker.id = 0;
-  marker.type = visualization_msgs::msg::Marker::ARROW;
-  marker.action = visualization_msgs::msg::Marker::ADD;
+  void End_Effector_Pos_Vel_Publisher()
+  {
+    // Rviz에서 시각화할 Marker 메시지 생성
+    auto marker = visualization_msgs::msg::Marker();
+    marker.header.frame_id = "world";
+    marker.header.stamp = this->get_clock()->now();
+    marker.ns = "ee_velocity";
+    marker.id = 0;
+    marker.type = visualization_msgs::msg::Marker::ARROW;
+    marker.action = visualization_msgs::msg::Marker::ADD;
 
-  // 화살표의 시작점과 끝점 설정
-  geometry_msgs::msg::Point start_point, end_point;
-  start_point.x = FK_EE_Pos[0];
-  start_point.y = FK_EE_Pos[1];
-  start_point.z = FK_EE_Pos[2];
+    // 화살표의 시작점과 끝점 설정
+    geometry_msgs::msg::Point start_point, end_point;
+    start_point.x = FK_EE_Pos[0]; // 현재 위치
+    start_point.y = FK_EE_Pos[1];
+    start_point.z = FK_EE_Pos[2];
 
-  end_point.x = start_point.x + EE_lin_vel[0];
-  end_point.y = start_point.y + EE_lin_vel[1];
-  end_point.z = start_point.z + EE_lin_vel[2];
+    end_point.x = start_point.x + EE_lin_vel[0]; // 속도 벡터 방향
+    end_point.y = start_point.y + EE_lin_vel[1];
+    end_point.z = start_point.z + EE_lin_vel[2];
 
-  marker.points.push_back(start_point);
-  marker.points.push_back(end_point);
+    marker.points.push_back(start_point);
+    marker.points.push_back(end_point);
 
-  // 화살표의 색상 및 크기 설정
-  marker.scale.x = 0.015;
-  marker.scale.y = 0.03;
-  marker.scale.z = 0.03;
+    // 화살표의 색상 및 크기 설정
+    marker.scale.x = 0.02; // 화살표의 줄기 두께
+    marker.scale.y = 0.05; // 화살표의 머리 크기
+    marker.scale.z = 0.05;
 
-  marker.color.a = 1.0;
-  marker.color.r = 0.6;  // 옅은 하늘색
-  marker.color.g = 0.8;
-  marker.color.b = 1.0;
+    marker.color.a = 1.0; // 불투명도
+    marker.color.r = 0.0; // 빨간색 (속도)
+    marker.color.g = 1.0;
+    marker.color.b = 0.0;
 
-  // 퍼블리시
-  EE_Vel_publisher_->publish(marker);
-}
+    // 퍼블리시
+    EE_Vel_publisher_->publish(marker);
+
+  }
 
 
+  void End_Effector_Force_Publisher()
+  {
+    // Rviz에서 시각화할 Marker 메시지 생성
+    auto marker = visualization_msgs::msg::Marker();
+    marker.header.frame_id = "world";
+    marker.header.stamp = this->get_clock()->now();
+    marker.ns = "EE_Force";
+    marker.id = 0;
+    marker.type = visualization_msgs::msg::Marker::ARROW;
+    marker.action = visualization_msgs::msg::Marker::ADD;
 
-void End_Effector_Force_Publisher()
-{
-  // Rviz에서 시각화할 Marker 메시지 생성
-  auto marker = visualization_msgs::msg::Marker();
-  marker.header.frame_id = "world";
-  marker.header.stamp = this->get_clock()->now();
-  marker.ns = "EE_Force";
-  marker.id = 0;
-  marker.type = visualization_msgs::msg::Marker::ARROW;
-  marker.action = visualization_msgs::msg::Marker::ADD;
+    // 화살표의 시작점과 끝점 설정
+    geometry_msgs::msg::Point start_point, end_point;
+    start_point.x = FK_EE_Pos[0]; // 현재 위치
+    start_point.y = FK_EE_Pos[1];
+    start_point.z = FK_EE_Pos[2];
 
-  // 화살표의 시작점과 끝점 설정
-  geometry_msgs::msg::Point start_point, end_point;
-  start_point.x = FK_EE_Pos[0]; // 현재 위치
-  start_point.y = FK_EE_Pos[1];
-  start_point.z = FK_EE_Pos[2];
+    end_point.x = start_point.x + External_force_sensor_meas_global[0]; // 속도 벡터 방향
+    end_point.y = start_point.y + External_force_sensor_meas_global[1];
+    end_point.z = start_point.z + External_force_sensor_meas_global[2];
 
-  External_force_sensor_meas_global = External_force_sensor_meas_global.normalized() * 0.2;
+    marker.points.push_back(start_point);
+    marker.points.push_back(end_point);
 
-  end_point.x = start_point.x + External_force_sensor_meas_global[0];
-  end_point.y = start_point.y + External_force_sensor_meas_global[1];
-  end_point.z = start_point.z + External_force_sensor_meas_global[2];
+    // 화살표의 색상 및 크기 설정
+    marker.scale.x = 0.02; // 화살표의 줄기 두께
+    marker.scale.y = 0.05; // 화살표의 머리 크기
+    marker.scale.z = 0.05;
 
-  marker.points.push_back(start_point);
-  marker.points.push_back(end_point);
+    marker.color.a = 1.0; // 불투명도
+    marker.color.r = 1.0; // 빨간색 (속도)
+    marker.color.g = 0.0;
+    marker.color.b = 0.0;
 
-  // 화살표의 색상 및 크기 설정
-  marker.scale.x = 0.015;
-  marker.scale.y = 0.03;
-  marker.scale.z = 0.03;
-
-  marker.color.a = 1.0;
-  marker.color.r = 1.0;
-  marker.color.g = 0.5;
-  marker.color.b = 0.0;
-
-  // 퍼블리시
-  EE_Force_publisher_->publish(marker);
-}
+    // 퍼블리시
+    EE_Force_publisher_->publish(marker);
+  }
 
   void Normal_vector_estimation_and_visual_Publisher()
   {
@@ -869,9 +889,9 @@ double Generate_Gaussian_Noise(double mean, double stddev)
 
     double delta_time = 0.005;
 
-    double l1 = 0.1;
-    double l2 = 0.2;
-    double l3 = 0.2;
+    double l1 = 0.02;
+    double l2 = 0.04;
+    double l3 = 0.035;
 
     bool contact_Flag = false;
 

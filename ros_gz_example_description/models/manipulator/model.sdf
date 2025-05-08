@@ -4,8 +4,6 @@
       <pose>0 0 0.005 0 0 0</pose>
 
     <!-- For drone -->
-    <!-- For drone -->
-    <!-- For drone -->
 
       <link name="link_drone">
         <pose>0.0 0.0 0.0 0.0 0 0</pose>
@@ -20,330 +18,44 @@
           </inertia>
           <mass>2</mass>
         </inertial>
-        <visual name="visual">
-            <pose relative_to="link_drone">0 0 0 0 0 0.785398</pose>
-            <geometry>
-            <mesh>
-            <uri>package://ros_gz_example_description/models/manipulator/meshes/palletrone.dae</uri>
+        <visual name="drone_visual">
+	 <pose relative_to="link_drone">0 0 0 0 0 0</pose>
+         <geometry>
+          <mesh>
+            <uri>package://ros_gz_example_description/models/manipulator/meshes/crazyflie.dae</uri>
             <scale>0.001 0.001 0.001</scale>
-            </mesh>
-            </geometry>
-        </visual>
-            <!-- Joint 1 Visual (Sphere) -->
-            <visual name="visual_joint_1">
-            <pose relative_to="link_drone">0 0 0.15 0 0 0</pose>
-                <geometry>
-                    <sphere>
-                        <radius>0.05</radius>
-                    </sphere>
-                </geometry>
-                <material>
-                    <ambient>1.0 1.0 0.0 1.0</ambient>
-                    <diffuse>1.0 1.0 0.0 1.0</diffuse>
-                </material>
-            </visual>
-        <sensor name="imu_sensor" type="imu">
-          <always_on>1</always_on>
-          <update_rate>300</update_rate>
-          <visualize>true</visualize>
-        </sensor>
-      </link>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
 
+    <!-- 엔드이펙터 -->
+    <link name="link_ee">
+      <pose relative_to="link_drone">0 0 0 0 0 0</pose>
+      <inertial>
+        <mass>0.1</mass>
+        <inertia>
+          <ixx>0.0001</ixx>
+          <iyy>0.0001</iyy>
+          <izz>0.0001</izz>
+        </inertia>
+      </inertial>
+      <visual name="ee_visual">
+        <geometry>
+          <mesh>
+            <uri>package://ros_gz_example_description/models/manipulator/meshes/EE.dae</uri>
+            <scale>0.001 0.001 0.001</scale>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
 
+    <!-- 고정 조인트 -->
+    <joint name="joint_drone_to_ee" type="fixed">
+      <parent>link_drone</parent>
+      <child>link_ee</child>
+      <pose relative_to="link_drone">0 0 0 0 0 0</pose>
+    </joint>
 
-        <!-- Joint 1 -->
-        <joint name="joint_1" type="revolute">
-            <pose relative_to="link_drone">0 0 0.15 0 0 0</pose>
-            <parent>link_drone</parent>
-            <child>link_1</child>
-            <axis>
-                <xyz>0 0 1</xyz>
-                <limit>
-	            <effort>1000</effort>
-                </limit>
-        <dynamics>
-            <damping>1</damping>
-            <friction>0.0</friction>
-        </dynamics>
-            </axis>
-                <!-- Force/Torque Sensor -->
-            <sensor name="force_torque_joint1_sensor" type="force_torque">
-                <update_rate>300</update_rate>
-                <always_on>true</always_on>
-                <visualize>true</visualize>
-                <topic>force_torque_joint1</topic>
-                <force_torque>
-                <frame>sensor</frame>
-                <measure_direction>parent_to_child</measure_direction>
-                </force_torque>
-            </sensor>            
-        </joint>
-        <plugin
-            filename="ignition-gazebo-joint-position-controller-system"
-            name="ignition::gazebo::systems::JointPositionController">
-            <joint_name>joint_1</joint_name>
-	    <topic>joint_1/cmd</topic>
-	    <p_gain>1000</p_gain>
-	    <i_gain>0.1</i_gain>
-	    <d_gain>0.01</d_gain>
-	    <i_max>1</i_max>
-	    <i_min>-1</i_min>
-	    <cmd_max>1000</cmd_max>
-  	    <cmd_min>-1000</cmd_min>
-        </plugin>
-
-
-
-    <!-- For manipulator -->
-    <!-- For manipulator -->
-    <!-- For manipulator -->
-
-        <link name="link_1">
-          <pose relative_to="joint_1">0 0 0.05 0 0 0</pose>
-            <inertial>
-                <mass>0.01</mass>
-                <inertia>
-		    <ixx>0.0001</ixx>
-		    <iyy>0.0001</iyy>
-		    <izz>0.0001</izz>
-                </inertia>
-            </inertial>
-            <visual name="visual_link_1">
-          <pose relative_to="link_1">0 0 0 0 0 0</pose>
-                <geometry>
-                    <cylinder>
-                        <radius>0.03</radius>
-                        <length>0.1</length>
-                    </cylinder>
-                </geometry>
-                <material>
-                    <ambient>0.0 1.0 1.0 1.0</ambient>
-                    <diffuse>0.0 1.0 1.0 1.0</diffuse>
-                </material>
-            </visual>
-            <!-- Joint 2 Visual (Sphere) -->
-            <visual name="visual_joint_2">
-            <pose relative_to="link_1">0 0 0.05 1.57 0 0</pose>
-                <geometry>
-                    <sphere>
-                        <radius>0.04</radius>
-                    </sphere>
-                </geometry>
-                <material>
-                    <ambient>1.0 1.0 0.0 1.0</ambient>
-                    <diffuse>1.0 1.0 0.0 1.0</diffuse>
-                </material>
-            </visual>
-        </link>
-        <!-- Joint 2 -->
-        <joint name="joint_2" type="revolute">
-            <pose relative_to="link_1">0 0 0.05 1.57 0 0</pose>
-            <parent>link_1</parent>
-            <child>link_2</child>
-            <axis>
-                <xyz>0 0 1</xyz>
-                <limit>
-	            <effort>1000</effort>
-                </limit>
-        <dynamics>
-            <damping>11</damping>
-            <friction>0.0</friction>
-        </dynamics>
-            </axis>
-                <!-- Force/Torque Sensor -->
-            <sensor name="force_torque_joint2_sensor" type="force_torque">
-                <update_rate>300</update_rate>
-                <always_on>true</always_on>
-                <visualize>true</visualize>
-                <topic>force_torque_joint2</topic>
-                <force_torque>
-                <frame>sensor</frame>
-                <measure_direction>parent_to_child</measure_direction>
-                </force_torque>
-            </sensor>                     
-        </joint>
-        <plugin
-            filename="ignition-gazebo-joint-position-controller-system"
-            name="ignition::gazebo::systems::JointPositionController">
-            <joint_name>joint_2</joint_name>
-	    <topic>joint_2/cmd</topic>
-	    <p_gain>1000</p_gain>
-	    <i_gain>0.1</i_gain>
-	    <d_gain>0.01</d_gain>
-	    <i_max>1</i_max>
-	    <i_min>-1</i_min>
-	    <cmd_max>1000</cmd_max>
-  	    <cmd_min>-1000</cmd_min>
-        </plugin>
-
-
-
-        <link name="link_2">
-            <pose relative_to="link_1">0.1 0 0.05 0 1.57 0</pose>
-            <inertial>
-                <mass>0.01</mass>
-                <inertia>
-		    <ixx>0.0001</ixx>
-		    <iyy>0.0001</iyy>
-		    <izz>0.0001</izz>
-                </inertia>
-            </inertial>
-            <visual name="visual_link_2">
-            <pose relative_to="link_2">0 0 0 0 0 0</pose>
-                <geometry>
-                    <cylinder>
-                        <radius>0.02</radius>
-                        <length>0.2</length>
-                    </cylinder>
-                </geometry>
-                <material>
-                    <ambient>1.0 0.0 0.0 1.0</ambient>
-                    <diffuse>1.0 0.0 0.0 1.0</diffuse>
-                </material>
-            </visual>
-            <!-- Joint 3 Visual (Sphere) -->
-            <visual name="visual_joint_3">
-            <pose relative_to="joint_2">0.2 0 0 0 0 0</pose>
-                <geometry>
-                    <sphere>
-                        <radius>0.03</radius>
-                    </sphere>
-                </geometry>
-                <material>
-                    <ambient>1.0 1.0 0.0 1.0</ambient>
-                    <diffuse>1.0 1.0 0.0 1.0</diffuse>
-                </material>
-            </visual>
-        </link>
-        <!-- Joint 3 -->
-        <joint name="joint_3" type="revolute">
-            <pose relative_to="joint_2">0.2 0 0 0 0 0</pose>
-            <parent>link_2</parent>
-            <child>link_3</child>
-            <axis>
-                <xyz>0 0 1</xyz>
-                <limit>
-	            <effort>1000</effort>
-                </limit>
-        <dynamics>
-            <damping>11</damping>
-            <friction>0.0</friction>
-        </dynamics>
-            </axis>
-                <!-- Force/Torque Sensor -->
-            <sensor name="force_torque_joint3_sensor" type="force_torque">
-                <update_rate>300</update_rate>
-                <always_on>true</always_on>
-                <visualize>true</visualize>
-                <topic>force_torque_joint3</topic>
-                <force_torque>
-                <frame>sensor</frame>
-                <measure_direction>parent_to_child</measure_direction>
-                </force_torque>
-            </sensor>                        
-        </joint>
-        <plugin
-            filename="ignition-gazebo-joint-position-controller-system"
-            name="ignition::gazebo::systems::JointPositionController">
-            <joint_name>joint_3</joint_name>
-	    <topic>joint_3/cmd</topic>
-	    <p_gain>1000</p_gain>
-	    <i_gain>0.1</i_gain>
-	    <d_gain>0.01</d_gain>
-	    <i_max>1</i_max>
-	    <i_min>-1</i_min>
-	    <cmd_max>1000</cmd_max>
-  	    <cmd_min>-1000</cmd_min>
-        </plugin>
-
-
-
-
-
-        <link name="link_3">
-            <pose relative_to="link_2">0 0 0.2 0 0 0</pose>
-            <inertial>
-                <mass>0.01</mass>
-                <inertia>
-		    <ixx>0.0001</ixx>
-		    <iyy>0.0001</iyy>
-		    <izz>0.0001</izz>
-                </inertia>
-            </inertial>
-            <visual name="visual_link_3">
-            <pose relative_to="link_3">0 0 0 0 0 0</pose>
-                <geometry>
-                    <cylinder>
-                        <radius>0.02</radius>
-                        <length>0.2</length>
-                    </cylinder>
-                </geometry>
-                <material>
-                    <ambient>1.0 0.0 0.0 1.0</ambient>
-                    <diffuse>1.0 0.0 0.0 1.0</diffuse>
-                </material>
-            </visual>
-        </link>
-        <!-- Joint 3 -->
-        <joint name="joint_EE" type="fixed">
-            <pose relative_to="joint_3">0.2 0 0 0 0 0</pose>
-            <parent>link_3</parent>
-            <child>link_EE</child>
-            <axis>
-                <xyz>0 0 1</xyz>
-            </axis>
-                <!-- Force/Torque Sensor -->
-            <sensor name="force_torque_EE_sensor" type="force_torque">
-                <update_rate>300</update_rate>
-                <always_on>true</always_on>
-                <visualize>true</visualize>
-                <topic>force_torque_EE</topic>
-                <force_torque>
-                <frame>sensor</frame>
-                <measure_direction>parent_to_child</measure_direction>
-                </force_torque>
-            </sensor>
-        </joint>
-        
-        <link name="link_EE">
-            <pose relative_to="joint_3">0.2 0 0 0 0 0</pose>
-            <inertial>
-                <mass>0.0</mass>
-                <inertia>
-		    <ixx>0.000</ixx>
-		    <iyy>0.000</iyy>
-		    <izz>0.000</izz>
-                </inertia>
-            </inertial>
-            <visual name="visual_end_effector">
-            <pose relative_to="joint_3">0.2 0 0 0 0 0</pose>
-                <geometry>
-                    <sphere>
-                        <radius>0.03</radius>
-                    </sphere>
-                </geometry>
-                <material>
-                    <ambient>1.0 1.0 1.0 1.0</ambient>
-                    <diffuse>1.0 1.0 1.0 1.0</diffuse>
-                </material>
-            </visual>
-            <collision name="collision_end_effector">
-            <pose relative_to="joint_3">0.2 0 0 0 0 0</pose>
-                <geometry>
-                    <sphere>
-                        <radius>0.03</radius>
-                    </sphere>
-                </geometry>
-                <surface>
-                    <friction>
-                    <ode>
-                        <mu>0.1</mu>
-                        <mu2>0.1</mu2>
-                    </ode>
-                    </friction>
-                </surface>                
-            </collision>
-        </link>
-    </model>
-
+  </model>
 </sdf>
