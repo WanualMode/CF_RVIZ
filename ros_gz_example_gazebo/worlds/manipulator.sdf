@@ -137,13 +137,13 @@
     
     <model name="curvature">
   <static>true</static>
-  <pose>2.5 -2 0 0 0 0</pose> <!-- 위치 조절 -->
+  <pose>1.5 1.35 0 0 0 0</pose> <!-- 위치 조절 -->
   <link name="curvature_link">
     <visual name="curvature_visual">
       <geometry>
         <mesh>
           <uri>package://ros_gz_example_description/models/manipulator/meshes/curvature.dae</uri>
-          <scale>0.006 0.006 0.006</scale>
+          <scale>0.004 0.004 0.004</scale>
         </mesh>
       </geometry>
     </visual>
@@ -160,7 +160,7 @@
 
 <model name="sphere">
   <static>true</static>
-  <pose>2.5 2 0 0 0 0</pose> <!-- 위치 조절  -->
+  <pose>1.5 -1.2 0 0 0 0</pose> <!-- 위치 조절  -->
   <link name="sphere_link">
     <visual name="sphere_visual">
       <geometry>

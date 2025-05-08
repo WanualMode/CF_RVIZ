@@ -67,7 +67,7 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://ros_gz_example_description/models/manipulator/meshes/curvature.dae" scale="0.005 0.005 0.005"/>
+        <mesh filename="package://ros_gz_example_description/models/manipulator/meshes/curvature.dae" scale="0.004 0.004 0.004"/>
       </geometry>
     </visual>
   </link>

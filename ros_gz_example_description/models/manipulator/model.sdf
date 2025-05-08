@@ -27,6 +27,15 @@
           </mesh>
         </geometry>
       </visual>
+      <collision name="drone_collision">
+    <pose>0 0 0 0 0 0</pose> <!-- visual과 동일한 위치 -->
+    <geometry>
+      <mesh>
+        <uri>package://ros_gz_example_description/models/manipulator/meshes/crazyflie.dae</uri>
+        <scale>0.001 0.001 0.001</scale>
+      </mesh>
+    </geometry>
+  </collision>
     </link>
 
     <!-- 엔드이펙터 -->
@@ -48,6 +57,15 @@
           </mesh>
         </geometry>
       </visual>
+      <collision name="ee_collision">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>package://ros_gz_example_description/models/manipulator/meshes/EE.dae</uri>
+            <scale>0.001 0.001 0.001</scale>
+          </mesh>
+        </geometry>
+      </collision>
     </link>
 
     <!-- 고정 조인트 -->
