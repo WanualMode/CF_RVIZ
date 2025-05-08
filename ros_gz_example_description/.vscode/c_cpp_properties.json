@@ -1,0 +1,26 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "${default}",
+        "limitSymbolsToIncludedHeaders": false
+      },
+      "includePath": [
+        "/home/mrlseuk/ros2_ws/install/px4_ros_com/include/**",
+        "/home/mrlseuk/ros2_ws/install/px4_msgs/include/**",
+        "/opt/ros/humble/include/**",
+        "/home/mrlseuk/ros2_ws/src/px4_ros_com/include/**",
+        "/home/mrlseuk/ros2_ws/src/ros2_cpp_tutorial/include/**",
+        "/home/mrlseuk/ros2_ws/src/ros_gz_project_template/ros_gz_example_application/include/**",
+        "/home/mrlseuk/ros2_ws/src/ros_gz_project_template/ros_gz_example_gazebo/include/**",
+        "/usr/include/**"
+      ],
+      "name": "ROS",
+      "intelliSenseMode": "gcc-x64",
+      "compilerPath": "/usr/bin/gcc",
+      "cStandard": "gnu11",
+      "cppStandard": "c++14"
+    }
+  ],
+  "version": 4
+}

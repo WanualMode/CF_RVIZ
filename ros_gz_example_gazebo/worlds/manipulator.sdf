@@ -1,0 +1,180 @@
+<?xml version="1.0" ?>
+<!--
+  Try sending commands:
+    gz topic -t "/model/diff_drive/cmd_vel" -m gz.msgs.Twist -p "linear: {x: 1.0}, angular: {z: -0.1}"
+    ros2 topic pub /diff_drive/cmd_vel geometry_msgs/msg/Twist "{linear: {x: 5.0, y: 0.0, z: 0.0}, angular: {x: 0.0, y: 0.0, z: -0.1}}"
+  Listen to odometry:
+    gz topic -e -t /model/diff_drive/odometry
+    ros2 topic echo /model/diff_drive/odometry
+-->
+<sdf version="1.8">
+  <world name="manipulator_world">
+  <physics name="dart_physics" type="dart">
+    <max_step_size>0.001</max_step_size>
+    <real_time_update_rate>1000</real_time_update_rate>
+    <gravity>0 0 -9.81</gravity>
+  </physics>
+    <!-- 물리, 센서, 장면 플러그인 추가 -->
+      <gravity>0 0 -9.81</gravity> <!-- 중력을 명시적으로 다시 설정 -->
+    
+    <plugin
+      filename="ignition-gazebo-physics-system"
+      name="ignition::gazebo::systems::Physics">
+      <engine>dart</engine> <!-- 또는 ODE, Bullet -->
+    </plugin>
+    <plugin
+      filename="ignition-gazebo-sensors-system"
+      name="ignition::gazebo::systems::Sensors">
+      <render_engine>ogre2</render_engine>
+    </plugin>
+    <plugin
+      filename="ignition-gazebo-scene-broadcaster-system"
+      name="ignition::gazebo::systems::SceneBroadcaster">
+    </plugin>
+    <plugin
+      filename="ignition-gazebo-user-commands-system"
+      name="ignition::gazebo::systems::UserCommands">
+    </plugin>
+    <!-- 사용자 정의 플러그인 예제 -->    
+    <plugin
+      filename="BasicSystem"
+      name="ros_gz_example_gazebo::BasicSystem">
+    </plugin>
+    <plugin
+      filename="FullSystem"
+      name="ros_gz_example_gazebo::FullSystem">
+    </plugin>
+  <plugin
+      filename="gz-sim-imu-system"
+      name="gz::sim::systems::Imu">
+    </plugin>
+    <plugin 
+        filename="ignition-gazebo-forcetorque-system" 
+        name="ignition::gazebo::systems::ForceTorque">
+    </plugin>
+    <plugin
+      filename="gz-sim-contact-system"
+      name="gz::sim::systems::Contact">
+    </plugin>
+
+
+    <!-- 조명 설정 -->
+    <light name="sun" type="directional">
+      <cast_shadows>true</cast_shadows>
+      <pose>0 0 10 0 0 0</pose>
+      <diffuse>0.8 0.8 0.8 1</diffuse>
+      <specular>0.2 0.2 0.2 1</specular>
+      <attenuation>
+        <range>1000</range>
+        <constant>0.9</constant>
+        <linear>0.01</linear>
+        <quadratic>0.001</quadratic>
+      </attenuation>
+      <direction>0.5 0.1 -0.9</direction>
+    </light>
+
+
+	<plugin
+	  filename="ForceTorquePlugin"
+	  name="force_torque_plugin::ForceTorquePlugin">
+	    <entity_name>link_drone</entity_name>
+	    <entity_type>link</entity_type>
+	</plugin>
+
+<scene>
+  <ambient>0.4 0.4 0.4 1</ambient> <!-- 환경광 설정 -->
+  <background>0.7 0.8 0.9 1</background> <!-- 배경색 설정 -->
+  <shadows>true</shadows> <!-- 그림자 활성화 -->
+  <sky>
+    <clouds>
+      <speed>0.01</speed> <!-- 구름 이동 속도 -->
+      <direction>0.0 0.5</direction> <!-- 구름 이동 방향 -->
+      <scale>2</scale> <!-- 구름 크기 -->
+    </clouds>
+  </sky>  
+</scene>
+
+
+
+    <!-- 지면 정의 -->
+    <model name="ground_plane">
+      <static>true</static>
+      <link name="ground_plane_link">
+        <collision name="collision">
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>100 100</size>
+            </plane>
+          </geometry>
+        </collision>
+      </link>
+    </model>
+
+	
+    <!-- 2-link Manipulator 모델 추가 -->
+    <model name="manipulator">
+      <self_collide>true</self_collide>
+      <pose>0 0 1 0 0 0</pose>
+      <include merge="true">
+        <uri>package://ros_gz_example_description/models/manipulator</uri>
+      </include>
+      
+      <plugin
+        filename="ignition-gazebo-joint-state-publisher-system"
+        name="ignition::gazebo::systems::JointStatePublisher">
+      </plugin>
+
+      <plugin
+        filename="ignition-gazebo-pose-publisher-system"
+        name="ignition::gazebo::systems::PosePublisher">
+        <publish_link_pose>true</publish_link_pose>
+        <use_pose_vector_msg>true</use_pose_vector_msg>
+        <static_publisher>true</static_publisher>
+        <static_update_frequency>1</static_update_frequency>
+      </plugin>      
+    </model>
+
+
+<model name="obstacle_">
+  <static>true</static>
+  <link name="obstacle_link">
+    <pose>0 0 2 0 0 0</pose>
+    <visual name="obstacle_visual">
+      <geometry>
+        <box>
+          <size>1 1 0.1</size>
+        </box>
+      </geometry>
+      <material>
+        <ambient>0.05 0.1 0.1 1.0</ambient>    <!-- 더 어둡게 (광택 강조) -->
+        <diffuse>0.2 0.4 0.5 1.0</diffuse>     <!-- 낮은 확산 반사 -->
+        <specular>1.0 1.0 1.0 1.0</specular>   <!-- 강한 광택 -->
+        <emissive>0 0 0 1</emissive>           <!-- 빛 방출 없음 -->
+      </material>
+      <transparency>0.4</transparency>        <!-- 절반 정도 투명하게 -->
+    </visual>
+    <collision name="obstacle_collision">
+      <geometry>
+        <box>
+          <size>1 1 0.1</size>
+        </box>
+      </geometry>
+      <surface>
+        <friction>
+          <ode>
+            <mu>0.1</mu>
+            <mu2>0.1</mu2>
+          </ode>
+        </friction>
+      </surface>
+    </collision>
+  </link>
+</model>
+
+
+
+
+
+  </world>
+</sdf>
